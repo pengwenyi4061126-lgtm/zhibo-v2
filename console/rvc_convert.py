@@ -23,6 +23,8 @@ def main():
     ap.add_argument("--index-rate", type=float, default=0.75, dest="index_rate")
     ap.add_argument("--rms-mix-rate", type=float, default=0.25, dest="rms_mix_rate")
     ap.add_argument("--protect", type=float, default=0.33, help="保护清辅音，防电音")
+    ap.add_argument("--target-rms-db", type=float, default=None, dest="target_rms_db",
+                    help="把输出音量归一化到该 dB（卖家真声实测 -17.4）")
     args = ap.parse_args()
 
     # RVC 的模块都按仓库根目录组织，必须切到那里再导入
@@ -69,6 +71,23 @@ def main():
     if audio is None:
         print("CONVERT_FAILED: %s" % (status,), flush=True)
         return 1
+
+    # 对齐音量：RVC 输出普遍比真人素材轻，直播里听起来就"没劲"
+    if args.target_rms_db is not None:
+        import numpy as np
+
+        a = audio.astype(np.float32)
+        peak = float(np.abs(a).max()) or 1.0
+        a = a / peak  # 先归一到 [-1,1] 便于按 dB 计算
+        rms = float(np.sqrt(np.mean(a ** 2)))
+        if rms > 1e-9:
+            gain = (10.0 ** (args.target_rms_db / 20.0)) / rms
+            a = a * gain
+            clipped = int(np.sum(np.abs(a) > 1.0))
+            if clipped:
+                a = a / float(np.abs(a).max())  # 防削波
+                print("NOTE: 增益后有 %d 个采样点溢出，已整体回缩" % clipped, flush=True)
+        audio = (a * 32767.0).astype(np.int16)
 
     out = os.path.abspath(args.output)
     os.makedirs(os.path.dirname(out), exist_ok=True)

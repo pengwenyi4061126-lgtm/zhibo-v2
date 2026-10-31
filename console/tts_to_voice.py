@@ -40,16 +40,23 @@ def main():
     src.add_argument("--text", help="要说的话")
     src.add_argument("--text-file", dest="text_file", help="从文件读（UTF-8）")
     ap.add_argument("--out", required=True, help="输出 wav")
+    # 默认值 = 实测对标卖家真声后的最优配方（见 docs/10-音色调参.md）
     ap.add_argument("--voice", default="zh-CN-XiaoxiaoNeural",
-                    help="TTS 声源。备选：zh-CN-YunjianNeural(男,解说感)、"
-                         "zh-CN-YunxiNeural(男)、zh-CN-XiaoyiNeural(女)")
-    ap.add_argument("--rate", default="+8%", help="语速，带货可以快一点")
-    ap.add_argument("--volume", default="+0%")
-    ap.add_argument("--pitch", type=int, default=0,
-                    help="RVC 变调半音。女声TTS->男声模型常用 -12~-6；不确定先 0 再微调")
+                    help="TTS 声源。晓晓音高起伏最大(10.8半音)，最接近真人；"
+                         "晓伊/云健起伏只有 6~7 半音，听着平")
+    ap.add_argument("--rate", default="+10%", help="语速，带货一般 +10% ~ +15%")
+    ap.add_argument("--volume", default="+15%")
+    ap.add_argument("--pitch", type=int, default=-4,
+                    help="RVC 变调半音。-4 实测让 F0 中位落在 202.6Hz，"
+                         "与卖家真声(201.2Hz)差 0.1 半音；想更尖用 -2 或 -1")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--index", default=DEFAULT_INDEX)
-    ap.add_argument("--index-rate", type=float, default=0.75, dest="index_rate")
+    ap.add_argument("--index-rate", type=float, default=0.90, dest="index_rate",
+                    help="越高越贴近训练音色，实测 0.90 最佳")
+    ap.add_argument("--rms-mix-rate", type=float, default=0.25, dest="rms_mix_rate",
+                    help="音量包络：0=完全用模型自己的强弱，1=跟随TTS原声。实测 0.25 起伏最接近真人")
+    ap.add_argument("--target-rms-db", type=float, default=-17.4, dest="target_rms_db",
+                    help="输出音量归一化目标，卖家真声实测 -17.4 dB")
     ap.add_argument("--keep-tts", action="store_true", dest="keep_tts",
                     help="保留中间的 TTS 原声，便于对比")
     args = ap.parse_args()
@@ -91,6 +98,8 @@ def main():
         "--model", args.model,
         "--pitch", str(args.pitch),
         "--index-rate", str(args.index_rate),
+        "--rms-mix-rate", str(args.rms_mix_rate),
+        "--target-rms-db", str(args.target_rms_db),
     ]
     if args.index and os.path.isfile(args.index):
         cmd += ["--index", args.index]
