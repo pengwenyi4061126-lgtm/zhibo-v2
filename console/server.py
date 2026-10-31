@@ -19,6 +19,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 PORT = int(os.environ.get("CONSOLE_PORT", "8777"))
 
+# 语音合成产物目录（放在工作区外，避免大文件进 git）
+VOICE_OUT = os.environ.get("VOICE_OUT", r"D:\voice-data\out")
+
 DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 DEEPSEEK_MODEL = "deepseek-chat"
 
@@ -155,6 +158,33 @@ def gen_qa(product, points, count):
     ])
 
 
+def make_voice(text, voice, rate, pitch):
+    """文字 -> 卖家音色 wav。走 tts_to_voice.py（edge-tts + RVC），不需要麦克风。"""
+    import subprocess
+    import time as _t
+
+    text = (text or "").strip()
+    if not text:
+        raise RuntimeError("没有可合成的文本")
+    os.makedirs(VOICE_OUT, exist_ok=True)
+    name = "voice_%d.wav" % int(_t.time())
+    out = os.path.join(VOICE_OUT, name)
+    cmd = [
+        sys.executable,
+        os.path.join(HERE, "tts_to_voice.py"),
+        "--text", text,
+        "--out", out,
+        "--voice", voice or "zh-CN-XiaoxiaoNeural",
+        "--rate", rate or "+8%",
+        "--pitch", str(int(pitch or 0)),
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace", timeout=900)
+    log = ((r.stdout or "") + (r.stderr or "")).strip()
+    if r.returncode != 0 or not os.path.isfile(out):
+        raise RuntimeError("合成失败：\n" + "\n".join(log.splitlines()[-8:]))
+    return name, os.path.getsize(out), log
+
+
 def gen_reply(product, comment):
     user = (
         "直播间观众发了一条弹幕，请给出主播的口语回应，1~2 句、直接能念出来，"
@@ -229,6 +259,19 @@ class Handler(SimpleHTTPRequestHandler):
             return self._send_json(
                 {"ok": True, "has_key": bool(api_key()), "product": STATE["product"]}
             )
+        if self.path.startswith("/voice/"):
+            name = os.path.basename(self.path[len("/voice/"):].split("?")[0])
+            path = os.path.join(VOICE_OUT, name)
+            if not name.endswith(".wav") or not os.path.isfile(path):
+                return self.send_error(404, "no such audio")
+            with open(path, "rb") as f:
+                raw = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", "audio/wav")
+            self.send_header("Content-Length", str(len(raw)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            return self.wfile.write(raw)
         return super().do_GET()
 
     def do_POST(self):
@@ -256,6 +299,17 @@ class Handler(SimpleHTTPRequestHandler):
             if self.path.startswith("/api/current"):
                 v = set_prompt(b.get("text", ""))
                 return self._send_json({"ok": True, "version": v})
+
+            if self.path.startswith("/api/voice"):
+                name, size, log = make_voice(
+                    b.get("text", ""),
+                    b.get("voice", "zh-CN-XiaoxiaoNeural"),
+                    b.get("rate", "+8%"),
+                    b.get("pitch", 0),
+                )
+                return self._send_json(
+                    {"ok": True, "file": name, "size": size, "url": "/voice/" + name}
+                )
 
             if self.path.startswith("/api/product"):
                 with LOCK:

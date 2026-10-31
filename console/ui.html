@@ -91,11 +91,36 @@
 
     <div id="tab-script">
       <div class="muted">生成后自动推送到提词器。可直接编辑后再推送。</div>
-      <textarea id="scriptOut" class="out" rows="16" style="margin-top:8px"></textarea>
+      <textarea id="scriptOut" class="out" rows="14" style="margin-top:8px"></textarea>
       <div class="row">
         <button id="btnPush">推送到提词器</button>
         <button id="btnClear" class="sec">清空提词器</button>
       </div>
+
+      <h2 style="margin-top:16px">生成卖家音色语音（不需要麦克风）</h2>
+      <div class="muted">edge-tts 合成 → RVC 换成卖家音色。长文本要等一会儿。</div>
+      <div class="row" style="align-items:center">
+        <select id="voice" style="width:200px">
+          <option value="zh-CN-XiaoxiaoNeural">晓晓 女·自然</option>
+          <option value="zh-CN-XiaoyiNeural">晓伊 女·活泼</option>
+          <option value="zh-CN-YunjianNeural">云健 男·解说感</option>
+          <option value="zh-CN-YunxiNeural">云希 男·年轻</option>
+        </select>
+        <select id="rate" style="width:120px">
+          <option value="+0%">语速 正常</option>
+          <option value="+8%" selected>语速 +8%</option>
+          <option value="+15%">语速 +15%</option>
+          <option value="+25%">语速 +25%</option>
+        </select>
+        <select id="pitch" style="width:150px">
+          <option value="0" selected>变调 0（先试这个）</option>
+          <option value="-6">变调 -6（偏男声）</option>
+          <option value="-12">变调 -12（男声）</option>
+          <option value="6">变调 +6（偏女声）</option>
+        </select>
+        <button id="btnVoice">生成语音</button>
+      </div>
+      <div id="voiceBox" style="margin-top:10px"></div>
     </div>
 
     <div id="tab-qa" style="display:none">
@@ -178,6 +203,32 @@ $('btnPush').onclick = async () => {
   catch (e) { $('workErr').textContent = e.message; }
 };
 $('btnClear').onclick = () => post('/api/current', { text: '' }).catch(() => {});
+
+// 生成卖家音色语音
+$('btnVoice').onclick = async () => {
+  $('workErr').textContent = '';
+  const text = $('scriptOut').value.trim();
+  if (!text) { $('workErr').textContent = '先生成或粘贴一段话术'; return; }
+  busy($('btnVoice'), true, '合成中…');
+  $('voiceBox').innerHTML = '<span class="muted">正在合成，长文本可能要一两分钟…</span>';
+  try {
+    const j = await post('/api/voice', {
+      text,
+      voice: $('voice').value,
+      rate: $('rate').value,
+      pitch: Number($('pitch').value)
+    });
+    $('voiceBox').innerHTML =
+      '<audio controls src="' + j.url + '" style="width:100%"></audio>' +
+      '<div class="muted" style="margin-top:4px">' + j.file +
+      '（' + (j.size / 1024).toFixed(0) + ' KB）· ' +
+      '<a class="link" href="' + j.url + '" download>下载</a></div>';
+  } catch (e) {
+    $('voiceBox').innerHTML = '';
+    $('workErr').textContent = e.message;
+  }
+  busy($('btnVoice'), false);
+};
 
 // 问答库
 $('btnQa').onclick = async () => {

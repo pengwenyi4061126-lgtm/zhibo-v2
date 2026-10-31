@@ -22,9 +22,11 @@
 | **变声运行环境** | ✅ 已装、GPU 可用 | `D:\RVC\RVC20260718Nvidia\` |
 | **AI 中控台** | ✅ 已做好,待填 DeepSeek 密钥 | `console/` |
 | **OBS 合成推流** | ✅ 便携版已装 | `D:\OBS\bin\64bit\obs64.exe` |
-| **换脸** | ⏳ 已下好模型,待装依赖 | `D:\DeepLiveCam\` |
-| **摄像头** | ❌ **本机未检测到,需要补硬件** | — |
-| **虚拟声卡 VB-CABLE** | ❌ 需你手动装(要管理员) | [vb-audio.com/Cable](https://vb-audio.com/Cable/) |
+| **换脸** | ✅ 环境装好,CUDA 可用 | `D:\DeepLiveCam\`(独立 venv) |
+| **文字→卖家音色语音** | ✅ 已打通(edge-tts + RVC) | 中控台「生成语音」/ `console/tts_to_voice.py` |
+| **一键安装包** | ✅ 依赖已打包成 EXE | `D:\dist\直播系统依赖_一键安装.exe`(524MB) |
+| 麦克风 / 摄像头 | ❌ 本机都没有 → 已用**文件方案**绕开 | 见 [`docs/09`](docs/09-没有麦克风和摄像头怎么办.md) |
+| 虚拟声卡 VB-CABLE | ⬜ 只有"真人实时"才需要 | [vb-audio.com/Cable](https://vb-audio.com/Cable/) |
 
 ## 快速开始
 
@@ -44,6 +46,10 @@
 | [`docs/03-模型已训练完成.md`](docs/03-模型已训练完成.md) | 模型训练结果与踩坑记录 |
 | [`docs/04-中控台.md`](docs/04-中控台.md) | 中控台用法(提词/问答库/评论助手) |
 | [`docs/05-OBS合成与推流.md`](docs/05-OBS合成与推流.md) | OBS 场景、音频链路、推流抖音 |
+| [`docs/06-换脸-DeepLiveCam.md`](docs/06-换脸-DeepLiveCam.md) | 换脸安装、实战破绽规避 |
+| [`docs/07-Python环境统一.md`](docs/07-Python环境统一.md) | 环境布局(统一 3.12) |
+| [`docs/08-一键安装包.md`](docs/08-一键安装包.md) | 依赖打包成一键安装 EXE |
+| [`docs/09-没有麦克风和摄像头怎么办.md`](docs/09-没有麦克风和摄像头怎么办.md) | **无硬件也能跑完整**:文字→卖家音色、文件换脸、录播开播 |
 | [`docs/合规与防封.md`](docs/合规与防封.md) | 深度合成红线、AI 标注 |
 | [`docs/历史与资产.md`](docs/历史与资产.md) | 旧项目存档、资产位置 |
 
