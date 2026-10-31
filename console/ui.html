@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>直播中控台</title>
+<style>
+  :root { --bg:#12151c; --panel:#1b2029; --line:#2c3340; --fg:#e8ecf3; --dim:#98a2b3;
+          --acc:#4f8cff; --ok:#2ecc71; --warn:#f0a020; --err:#ff5c5c; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:14px/1.6 "Microsoft YaHei","Segoe UI",sans-serif; }
+  header { padding:12px 18px; background:var(--panel); border-bottom:1px solid var(--line);
+           display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  .pill { font-size:12px; padding:3px 10px; border-radius:99px; background:#263040; color:var(--dim); }
+  .pill.ok { background:#16351f; color:var(--ok); }
+  .pill.err { background:#3a1d1d; color:var(--err); }
+  a.link { color:var(--acc); text-decoration:none; font-size:12px; }
+  main { display:grid; grid-template-columns:340px 1fr; gap:14px; padding:14px; align-items:start; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .card h2 { font-size:13px; margin:0 0 10px; color:var(--dim); font-weight:600;
+             letter-spacing:.5px; text-transform:uppercase; }
+  label { display:block; font-size:12px; color:var(--dim); margin:10px 0 4px; }
+  input, textarea, select {
+    width:100%; background:#131720; color:var(--fg); border:1px solid var(--line);
+    border-radius:7px; padding:8px 10px; font:13px/1.5 inherit; resize:vertical; }
+  input:focus, textarea:focus { outline:1px solid var(--acc); border-color:var(--acc); }
+  button { background:var(--acc); color:#fff; border:0; border-radius:7px; padding:9px 14px;
+           font:600 13px inherit; cursor:pointer; }
+  button:hover { filter:brightness(1.12); }
+  button:disabled { opacity:.5; cursor:default; }
+  button.sec { background:#2b3442; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .out { white-space:pre-wrap; background:#0f1218; border:1px solid var(--line);
+         border-radius:8px; padding:12px; min-height:150px; max-height:46vh;
+         overflow:auto; font-size:14px; }
+  .muted { color:var(--dim); font-size:12px; }
+  .tabs { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+  .tabs button { background:#222a36; color:var(--dim); font-weight:500; }
+  .tabs button.on { background:var(--acc); color:#fff; }
+  .qa { border-left:3px solid var(--acc); padding:8px 10px; margin:8px 0; background:#0f1218;
+        border-radius:0 7px 7px 0; }
+  .qa .q { color:var(--acc); font-weight:600; }
+  .qa .a { margin-top:3px; }
+  .qa button { margin-top:6px; padding:4px 10px; font-size:12px; background:#2b3442; }
+  ul.chk { margin:0; padding-left:18px; }
+  ul.chk li { margin:5px 0; font-size:13px; }
+  .err-box { color:var(--err); font-size:13px; margin-top:8px; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<header>
+  <h1>直播中控台</h1>
+  <span id="keyPill" class="pill">检测密钥…</span>
+  <a class="link" href="/teleprompter" target="_blank">打开提词器（OBS 浏览器源用这个地址）↗</a>
+</header>
+
+<main>
+  <!-- 左：商品设置 -->
+  <section class="card">
+    <h2>商品设置</h2>
+    <label>商品名称</label>
+    <input id="product" placeholder="例如：纯棉圆领短袖 T 恤">
+    <label>卖点 / 规格 / 价格（越具体，话术越准）</label>
+    <textarea id="points" rows="7" placeholder="100%新疆长绒棉&#10;克重 230g，不透不起球&#10;S-3XL，7 个颜色&#10;直播价 69 元两件，包邮&#10;48 小时发货，7 天无理由"></textarea>
+    <label>讲解时长（分钟）</label>
+    <input id="minutes" type="number" value="3" min="1" max="15">
+    <div class="row">
+      <button id="btnScript">生成讲解话术</button>
+      <button id="btnQa" class="sec">生成问答库</button>
+    </div>
+    <div id="cfgErr" class="err-box"></div>
+
+    <h2 style="margin-top:18px">合规检查</h2>
+    <ul class="chk">
+      <li>直播间已标注「AI/数字人」</li>
+      <li>用的是本人授权的脸和声音</li>
+      <li>话术无绝对化用语（最好/第一/国家级）</li>
+      <li>无医疗功效、减肥、收益承诺</li>
+      <li>价格、发货时效与详情页一致</li>
+    </ul>
+  </section>
+
+  <!-- 右：工作区 -->
+  <section class="card">
+    <div class="tabs">
+      <button data-tab="script" class="on">话术</button>
+      <button data-tab="qa">问答库</button>
+      <button data-tab="reply">评论区助手</button>
+    </div>
+
+    <div id="tab-script">
+      <div class="muted">生成后自动推送到提词器。可直接编辑后再推送。</div>
+      <textarea id="scriptOut" class="out" rows="16" style="margin-top:8px"></textarea>
+      <div class="row">
+        <button id="btnPush">推送到提词器</button>
+        <button id="btnClear" class="sec">清空提词器</button>
+      </div>
+    </div>
+
+    <div id="tab-qa" style="display:none">
+      <div class="muted">观众一问就点「念这条」，立刻推到提词器。</div>
+      <div id="qaList" style="margin-top:8px"></div>
+    </div>
+
+    <div id="tab-reply" style="display:none">
+      <label>观众弹幕</label>
+      <textarea id="comment" rows="3" placeholder="粘贴或手打观众的问题，例如：160cm 100 斤穿多大码？"></textarea>
+      <div class="row">
+        <button id="btnReply">生成回应</button>
+      </div>
+      <div id="replyOut" class="out" style="margin-top:10px;min-height:90px"></div>
+      <div class="row">
+        <button id="btnReplyPush" class="sec">把回应推到提词器</button>
+      </div>
+    </div>
+    <div id="workErr" class="err-box"></div>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const post = async (url, body) => {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {})
+  });
+  const j = await r.json().catch(() => ({ ok: false, error: 'HTTP ' + r.status }));
+  if (!j.ok) throw new Error(j.error || '请求失败');
+  return j;
+};
+
+// 密钥状态
+fetch('/api/health').then(r => r.json()).then(j => {
+  const p = $('keyPill');
+  p.textContent = j.has_key ? 'DeepSeek 已配置' : 'DeepSeek 未配置 — 请在 .env 填 DEEPSEEK_API_KEY';
+  p.className = 'pill ' + (j.has_key ? 'ok' : 'err');
+}).catch(() => {});
+
+// 标签切换
+document.querySelectorAll('.tabs button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    ['script', 'qa', 'reply'].forEach(t => {
+      $('tab-' + t).style.display = (t === b.dataset.tab) ? '' : 'none';
+    });
+  };
+});
+
+const busy = (btn, on, label) => {
+  btn.disabled = on;
+  if (on) { btn.dataset.old = btn.textContent; btn.textContent = label || '生成中…'; }
+  else if (btn.dataset.old) { btn.textContent = btn.dataset.old; }
+};
+const cfg = () => ({
+  product: $('product').value.trim(),
+  points: $('points').value.trim(),
+  minutes: Number($('minutes').value) || 3
+});
+
+// 生成话术
+$('btnScript').onclick = async () => {
+  $('cfgErr').textContent = '';
+  if (!cfg().product) { $('cfgErr').textContent = '请先填商品名称'; return; }
+  busy($('btnScript'), true);
+  try {
+    const j = await post('/api/script', cfg());
+    $('scriptOut').value = j.text;
+  } catch (e) { $('cfgErr').textContent = e.message; }
+  busy($('btnScript'), false);
+};
+
+// 推送提词器
+$('btnPush').onclick = async () => {
+  try { await post('/api/current', { text: $('scriptOut').value }); }
+  catch (e) { $('workErr').textContent = e.message; }
+};
+$('btnClear').onclick = () => post('/api/current', { text: '' }).catch(() => {});
+
+// 问答库
+$('btnQa').onclick = async () => {
+  $('cfgErr').textContent = '';
+  if (!cfg().product) { $('cfgErr').textContent = '请先填商品名称'; return; }
+  busy($('btnQa'), true);
+  try {
+    const j = await post('/api/qa', { ...cfg(), count: 12 });
+    renderQa(j.text);
+    document.querySelector('.tabs button[data-tab="qa"]').click();
+  } catch (e) { $('cfgErr').textContent = e.message; }
+  busy($('btnQa'), false);
+};
+
+function renderQa(text) {
+  const items = [];
+  let cur = null;
+  text.split('\n').forEach(line => {
+    const l = line.trim();
+    let m = l.match(/^Q[:：]\s*(.+)$/i);
+    if (m) { cur = { q: m[1], a: '' }; items.push(cur); return; }
+    m = l.match(/^A[:：]\s*(.+)$/i);
+    if (m && cur) { cur.a = m[1]; return; }
+    if (cur && l && cur.a) cur.a += ' ' + l;
+  });
+  const box = $('qaList');
+  box.innerHTML = '';
+  if (!items.length) { box.textContent = text; return; }
+  items.forEach(it => {
+    const d = document.createElement('div');
+    d.className = 'qa';
+    const q = document.createElement('div'); q.className = 'q'; q.textContent = 'Q ' + it.q;
+    const a = document.createElement('div'); a.className = 'a'; a.textContent = it.a;
+    const b = document.createElement('button'); b.textContent = '念这条';
+    b.onclick = () => post('/api/current', { text: it.a }).catch(() => {});
+    d.append(q, a, b);
+    box.appendChild(d);
+  });
+}
+
+// 评论区助手
+$('btnReply').onclick = async () => {
+  $('workErr').textContent = '';
+  const c = $('comment').value.trim();
+  if (!c) { $('workErr').textContent = '请先填一条弹幕'; return; }
+  busy($('btnReply'), true);
+  try {
+    const j = await post('/api/reply', { product: cfg().product, comment: c });
+    $('replyOut').textContent = j.text;
+  } catch (e) { $('workErr').textContent = e.message; }
+  busy($('btnReply'), false);
+};
+$('btnReplyPush').onclick = () =>
+  post('/api/current', { text: $('replyOut').textContent }).catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>提词器</title>
+<style>
+  :root { --size:38px; }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; }
+  body { background:#000; color:#fff; overflow:hidden;
+         font-family:"Microsoft YaHei","Segoe UI",sans-serif; }
+  /* OBS 浏览器源加 ?bg=0 可透明，便于叠在画面上 */
+  body.transparent { background:transparent; }
+  #wrap { height:100%; overflow:hidden; position:relative; }
+  #text { padding:28px 40px 60vh; font-size:var(--size); line-height:1.65;
+          white-space:pre-wrap; text-shadow:0 2px 6px rgba(0,0,0,.85); }
+  #bar { position:fixed; left:0; right:0; bottom:0; padding:8px 12px; display:flex;
+         gap:8px; align-items:center; background:rgba(12,15,22,.92);
+         border-top:1px solid #2c3340; font-size:13px; color:#98a2b3; }
+  body.hidebar #bar { display:none; }
+  button { background:#2b3442; color:#e8ecf3; border:0; border-radius:6px;
+           padding:6px 11px; font:600 13px inherit; cursor:pointer; }
+  button.on { background:#4f8cff; color:#fff; }
+  input[type=range] { width:120px; }
+  #guide { position:fixed; left:0; right:0; top:32%; height:2px;
+           background:linear-gradient(90deg,transparent,#4f8cff88,transparent); }
+</style>
+</head>
+<body>
+<div id="wrap"><div id="text">等待中控台推送话术…</div></div>
+<div id="guide"></div>
+<div id="bar">
+  <button id="play">▶ 滚动</button>
+  <span>速度</span><input id="speed" type="range" min="0" max="60" value="14">
+  <span>字号</span><input id="size" type="range" min="20" max="80" value="38">
+  <button id="top">⤒ 回顶</button>
+  <span id="st">就绪</span>
+</div>
+
+<script>
+const q = new URLSearchParams(location.search);
+if (q.get('bg') === '0') document.body.classList.add('transparent');
+if (q.get('bar') === '0') document.body.classList.add('hidebar');
+
+const wrap = document.getElementById('wrap');
+const textEl = document.getElementById('text');
+const st = document.getElementById('st');
+let scrolling = false, ver = -1, acc = 0;
+
+document.getElementById('size').oninput = e =>
+  document.documentElement.style.setProperty('--size', e.target.value + 'px');
+document.getElementById('play').onclick = e => {
+  scrolling = !scrolling;
+  e.target.classList.toggle('on', scrolling);
+  e.target.textContent = scrolling ? '⏸ 暂停' : '▶ 滚动';
+};
+document.getElementById('top').onclick = () => { wrap.scrollTop = 0; };
+
+// 空格键开关滚动，方便直播时用键盘控制
+addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); document.getElementById('play').click(); }
+});
+
+// 平滑滚动
+let last = performance.now();
+function frame(now) {
+  const dt = (now - last) / 1000; last = now;
+  if (scrolling) {
+    acc += (Number(document.getElementById('speed').value) || 0) * dt;
+    const px = Math.floor(acc);
+    if (px > 0) { wrap.scrollTop += px; acc -= px; }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// 轮询中控台推送的内容
+async function poll() {
+  try {
+    const r = await fetch('/api/current', { cache: 'no-store' });
+    const j = await r.json();
+    if (j.version !== ver) {
+      ver = j.version;
+      textEl.textContent = j.text || '（提词器已清空）';
+      wrap.scrollTop = 0; acc = 0;
+      st.textContent = '已更新 ' + new Date().toLocaleTimeString();
+    }
+  } catch (e) { st.textContent = '连接中断，重试中…'; }
+}
+poll();
+setInterval(poll, 1200);
+</script>
+</body>
+</html>
