@@ -1,0 +1,42 @@
+# === 密钥 ===
+.env
+*.key
+secrets/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# === 模型 / 权重（大文件，放模型库，不入库）===
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.pt
+*.index
+*.npy
+
+# === 媒体（大文件，源资产在 D:\voice-data）===
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.mp3
+*.flac
+*.m4a
+mm-out/
+output/
+temp/
+tmp/
+dist/
+
+# === OS / IDE ===
+.DS_Store
+Thumbs.db
+desktop.ini
