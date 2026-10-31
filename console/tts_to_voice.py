@@ -17,7 +17,7 @@ import subprocess
 import sys
 import tempfile
 
-RVC_ROOT = os.environ.get("RVC_ROOT", r"D:\RVC\RVC20260718Nvidia")
+RVC_ROOT = os.environ.get("RVC_ROOT", r"D:\zhibo\runtime\RVC\RVC20260718Nvidia")
 RVC_PY = os.path.join(RVC_ROOT, "runtime", "python.exe")
 HERE = os.path.dirname(os.path.abspath(__file__))
 

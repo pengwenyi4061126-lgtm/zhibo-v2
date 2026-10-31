@@ -9,7 +9,7 @@ import argparse
 import os
 import sys
 
-RVC_ROOT = os.environ.get("RVC_ROOT", r"D:\RVC\RVC20260718Nvidia")
+RVC_ROOT = os.environ.get("RVC_ROOT", r"D:\zhibo\runtime\RVC\RVC20260718Nvidia")
 
 
 def main():

@@ -6,9 +6,9 @@ OBS 是整套系统的"总装车间":把摄像头(换脸后)+ 变声后的音频
 
 | 项 | 位置 |
 |---|---|
-| OBS Studio **33.0.1**(便携版,免安装免管理员) | `D:\OBS\bin\64bit\obs64.exe` |
+| OBS Studio **33.0.1**(便携版,免安装免管理员) | `D:\zhibo\runtime\OBS\bin\64bit\obs64.exe` |
 
-便携模式已开启(`D:\OBS\portable_mode.txt`),所有配置都存在 `D:\OBS` 里,不写系统目录。
+便携模式已开启(`D:\zhibo\runtime\OBS\portable_mode.txt`),所有配置都存在 `D:\zhibo\runtime\OBS` 里,不写系统目录。
 建议发个桌面快捷方式到那个 exe。
 
 ## 还缺的两样(需要你补)

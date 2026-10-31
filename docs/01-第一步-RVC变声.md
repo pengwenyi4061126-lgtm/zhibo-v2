@@ -9,11 +9,11 @@
 
 | 项 | 实况 |
 |---|---|
-| 安装路径 | `D:\RVC\RVC20260718Nvidia\` |
+| 安装路径 | `D:\zhibo\runtime\RVC\RVC20260718Nvidia\` |
 | 运行时 | **自带** Python 3.12.10 + PyTorch 2.7.1 + CUDA 11.8（独立于系统 Python） |
 | 显卡 | GTX 1050 Ti，CUDA 可用（`torch.cuda.is_available() = True`） |
 | 模型 | hubert_base（`assets/hubert_base/`，HF 格式 189MB）、rmvpe、pretrained_v2（f0D40k/f0G40k）全就位 |
-| 数据 | `D:\voice-data\sliced`：139 段 wav，32kHz 单声道，≈14.4 分钟 |
+| 数据 | `D:\zhibo\data\sliced`：139 段 wav，32kHz 单声道，≈14.4 分钟 |
 
 启动器（都在安装根目录）：
 - `go-webui.bat` —— 训练 / 推理 WebUI
@@ -21,11 +21,11 @@
 
 ## 1. 训练（4GB 显存参数）
 
-双击 `D:\RVC\RVC20260718Nvidia\go-webui.bat` → 浏览器开 WebUI →「训练」页：
+双击 `D:\zhibo\runtime\RVC\RVC20260718Nvidia\go-webui.bat` → 浏览器开 WebUI →「训练」页：
 
 1. 实验名：`seller`
 2. 版本 **v2**；目标采样率 **40k**（源是 32k，训 48k 无增益）
-3. 训练数据路径：`D:\voice-data\sliced`
+3. 训练数据路径：`D:\zhibo\data\sliced`
 4. 音高提取：**rmvpe**
 5. **batch size：先 4**；报 `CUDA out of memory` 就降到 2 或 1
 6. 轮数：100~150，每 10~20 轮存一次

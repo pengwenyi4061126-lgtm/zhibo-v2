@@ -6,11 +6,11 @@
 
 | 项 | 位置 | 说明 |
 |---|---|---|
-| Deep-Live-Cam 源码 | `D:\DeepLiveCam\` | 官方仓库 |
-| 换脸模型 `inswapper_128_fp16.onnx` | `D:\DeepLiveCam\models\` | 264.8MB |
-| 画质增强 `GFPGANv1.4.pth` | `D:\DeepLiveCam\models\` | 332.5MB |
-| 独立 Python 3.12.16 | `D:\py312\python\python.exe` | 免安装 |
-| 专用虚拟环境 | `D:\DeepLiveCam\.venv\` | **和 RVC 完全隔离** |
+| Deep-Live-Cam 源码 | `D:\zhibo\runtime\DeepLiveCam\` | 官方仓库 |
+| 换脸模型 `inswapper_128_fp16.onnx` | `D:\zhibo\runtime\DeepLiveCam\models\` | 264.8MB |
+| 画质增强 `GFPGANv1.4.pth` | `D:\zhibo\runtime\DeepLiveCam\models\` | 332.5MB |
+| 独立 Python 3.12.16 | `D:\zhibo\runtime\py312\python\python.exe` | 免安装 |
+| 专用虚拟环境 | `D:\zhibo\runtime\DeepLiveCam\.venv\` | **和 RVC 完全隔离** |
 
 > ⚠️ **为什么要单独环境**:Deep-Live-Cam 要 `numpy>=2`,而 RVC 那套用的是 numpy 1.x。
 > 装在一起会把刚训好的变声环境搞坏。所以它有自己的 `.venv`,互不干扰。
@@ -18,7 +18,7 @@
 ## 启动
 
 ```powershell
-& 'D:\DeepLiveCam\.venv\Scripts\python.exe' 'D:\DeepLiveCam\run.py'
+& 'D:\zhibo\runtime\DeepLiveCam\.venv\Scripts\python.exe' 'D:\zhibo\runtime\DeepLiveCam\run.py'
 ```
 
 常用参数:

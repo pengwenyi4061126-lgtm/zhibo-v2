@@ -7,7 +7,7 @@
 
 - 开 **Clash**(全局或规则模式),确保能打开 Google。
 - 一个 Google 账号(Colab + Google Drive 同一个)。
-- 数据集已打包:`D:\voice-data\seller_dataset.zip`(45.8MB,139 段人声)。
+- 数据集已打包:`D:\zhibo\data\seller_dataset.zip`(45.8MB,139 段人声)。
 
 ## 1. 把数据和资产放进 Google Drive
 
@@ -80,10 +80,10 @@ files.download('/content/seller_model.zip')   # 或者直接存 Drive: shutil.co
 ## 6. 拿回本地用
 
 解压 `seller_model.zip`,把:
-- `seller.pth` → 放到 `D:\RVC\RVC20260718Nvidia\assets\weights\`
-- `added_*.index` → 放到 `D:\RVC\RVC20260718Nvidia\logs\seller\`
+- `seller.pth` → 放到 `D:\zhibo\runtime\RVC\RVC20260718Nvidia\assets\weights\`
+- `added_*.index` → 放到 `D:\zhibo\runtime\RVC\RVC20260718Nvidia\logs\seller\`
 
-然后双击 `D:\RVC\RVC20260718Nvidia\go-realtime_gui.bat`,加载 `seller.pth` + 索引,麦克风进、虚拟声卡出 → 接 OBS。实时变声在 1050Ti 上够用。
+然后双击 `D:\zhibo\runtime\RVC\RVC20260718Nvidia\go-realtime_gui.bat`,加载 `seller.pth` + 索引,麦克风进、虚拟声卡出 → 接 OBS。实时变声在 1050Ti 上够用。
 
 ---
 

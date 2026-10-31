@@ -20,7 +20,7 @@ ROOT = os.path.dirname(HERE)
 PORT = int(os.environ.get("CONSOLE_PORT", "8777"))
 
 # 语音合成产物目录（放在工作区外，避免大文件进 git）
-VOICE_OUT = os.environ.get("VOICE_OUT", r"D:\voice-data\out")
+VOICE_OUT = os.environ.get("VOICE_OUT", r"D:\zhibo\data\out")
 
 DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 DEEPSEEK_MODEL = "deepseek-chat"
