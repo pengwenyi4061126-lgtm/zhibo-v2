@@ -46,9 +46,9 @@ def main():
                          "晓伊/云健起伏只有 6~7 半音，听着平")
     ap.add_argument("--rate", default="+10%", help="语速，带货一般 +10% ~ +15%")
     ap.add_argument("--volume", default="+15%")
-    ap.add_argument("--pitch", type=int, default=-4,
-                    help="RVC 变调半音。-4 实测让 F0 中位落在 202.6Hz，"
-                         "与卖家真声(201.2Hz)差 0.1 半音；想更尖用 -2 或 -1")
+    ap.add_argument("--pitch", type=int, default=-1,
+                    help="RVC 变调半音。默认 -1 => F0 245Hz，对齐卖家带货时的高音区"
+                         "(真声 p90=277.8Hz)，试听定版；要更低更厚用 -4(202Hz)")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--index", default=DEFAULT_INDEX)
     ap.add_argument("--index-rate", type=float, default=0.90, dest="index_rate",
