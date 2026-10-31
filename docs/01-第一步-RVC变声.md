@@ -10,7 +10,7 @@
 | 项 | 实况 |
 |---|---|
 | 安装路径 | `D:\RVC\RVC20260718Nvidia\` |
-| 运行时 | **自带** Python 3.12.10 + PyTorch 2.7.1 + CUDA 11.8（不碰系统的 3.14/3.11） |
+| 运行时 | **自带** Python 3.12.10 + PyTorch 2.7.1 + CUDA 11.8（独立于系统 Python） |
 | 显卡 | GTX 1050 Ti，CUDA 可用（`torch.cuda.is_available() = True`） |
 | 模型 | hubert_base（`assets/hubert_base/`，HF 格式 189MB）、rmvpe、pretrained_v2（f0D40k/f0G40k）全就位 |
 | 数据 | `D:\voice-data\sliced`：139 段 wav，32kHz 单声道，≈14.4 分钟 |

@@ -1,7 +1,8 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-set PY=D:\Python\pyhton3.14\python.exe
+rem 统一使用 Python 3.12（D:\py312）。3.14 已弃用：ML 生态普遍还没有 3.14 的轮子。
+set PY=D:\py312\python\python.exe
 if not exist "%PY%" set PY=python
 echo ==========================================================
 echo  直播中控台
