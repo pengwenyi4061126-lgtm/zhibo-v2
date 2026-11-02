@@ -55,6 +55,9 @@ def main():
     ap.add_argument("--pitch", type=int, default=-1,
                     help="RVC 变调半音。默认 -1 => F0 245Hz，对齐卖家带货时的高音区"
                          "(真声 p90=277.8Hz)，试听定版；要更低更厚用 -4(202Hz)")
+    ap.add_argument("--f0-method", default=os.environ.get("RVC_F0_METHOD", "pm"),
+                    choices=("pm", "rmvpe", "fcpe"),
+                    help="F0 提取方法。1050 Ti 中控台默认 pm，需更高质量可设 RVC_F0_METHOD=rmvpe")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--index", default=DEFAULT_INDEX)
     ap.add_argument("--index-rate", type=float, default=0.90, dest="index_rate",
@@ -103,6 +106,7 @@ def main():
         "--output", out,
         "--model", args.model,
         "--pitch", str(args.pitch),
+        "--f0-method", args.f0_method,
         "--index-rate", str(args.index_rate),
         "--rms-mix-rate", str(args.rms_mix_rate),
         "--target-rms-db", str(args.target_rms_db),

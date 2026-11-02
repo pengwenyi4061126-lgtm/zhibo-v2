@@ -1,0 +1,50 @@
+diff --git a/infer/vc/pipeline.py b/infer/vc/pipeline.py
+--- a/infer/vc/pipeline.py
++++ b/infer/vc/pipeline.py
+@@ -23,20 +23,24 @@
++def _rms_envelope(data, frame_length, hop_length):
++    """Compute a centered RMS envelope without librosa's large sliding window."""
++    frame_length = max(1, int(frame_length))
++    hop_length = max(1, int(hop_length))
++    source = np.asarray(data, dtype=np.float32)
++    pad = frame_length // 2
++    padded = np.pad(source, (pad, pad), mode="constant")
++    squared = np.square(padded, dtype=np.float64)
++    cumulative = np.concatenate(([0.0], np.cumsum(squared)))
++    starts = np.arange(0, len(source), hop_length, dtype=np.int64)
++    ends = np.minimum(starts + frame_length, len(padded))
++    sums = cumulative[ends] - cumulative[starts]
++    return np.sqrt(np.maximum(sums / frame_length, 1e-12)).astype(np.float32)
++
++
+ def change_rms(data1, sr1, data2, sr2, rate):
+-    rms1 = librosa.feature.rms(
+-        y=data1, frame_length=sr1 // 2 * 2, hop_length=sr1 // 2
+-    )
+-    rms2 = librosa.feature.rms(y=data2, frame_length=sr2 // 2 * 2, hop_length=sr2 // 2)
+-    rms1 = torch.from_numpy(rms1)
+-    rms1 = F.interpolate(
+-        rms1.unsqueeze(0), size=data2.shape[0], mode="linear"
+-    ).squeeze()
+-    rms2 = torch.from_numpy(rms2)
+-    rms2 = F.interpolate(
+-        rms2.unsqueeze(0), size=data2.shape[0], mode="linear"
+-    ).squeeze()
+-    rms2 = torch.max(rms2, torch.zeros_like(rms2) + 1e-6)
+-    data2 *= (
+-        torch.pow(rms1, torch.tensor(1 - rate))
+-        * torch.pow(rms2, torch.tensor(rate - 1))
+-    ).numpy()
++    rms1 = _rms_envelope(data1, sr1, sr1 // 2)
++    rms2 = _rms_envelope(data2, sr2, sr2 // 2)
++    target = np.linspace(0.0, 1.0, num=data2.shape[0], dtype=np.float32)
++    rms1 = np.interp(target, np.linspace(0.0, 1.0, num=len(rms1)), rms1)
++    rms2 = np.interp(target, np.linspace(0.0, 1.0, num=len(rms2)), rms2)
++    rms2 = np.maximum(rms2, 1e-6)
++    data2 *= (rms1 ** (1 - rate)) * (rms2 ** (rate - 1))
+@@ -367,1 +371,1 @@
+-                    audio_pad[t:],
++                    audio_pad[t:] if t is not None else audio_pad,
+@@ -384,1 +388,1 @@
+-                    audio_pad[t:],
++                    audio_pad[t:] if t is not None else audio_pad,

@@ -48,6 +48,9 @@ def load_env():
 
 
 load_env()
+# Resolve paths after .env is loaded so the new-system writable output folder
+# is honored instead of the legacy D: drive default.
+VOICE_OUT = os.environ.get("VOICE_OUT", VOICE_OUT)
 
 
 def api_key():
