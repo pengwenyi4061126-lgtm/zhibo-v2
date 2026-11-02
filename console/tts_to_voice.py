@@ -21,9 +21,15 @@ RVC_ROOT = os.environ.get("RVC_ROOT", r"D:\zhibo\runtime\RVC\RVC20260718Nvidia")
 RVC_PY = os.path.join(RVC_ROOT, "runtime", "python.exe")
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-DEFAULT_MODEL = "seller.pth"
+DEFAULT_MODEL = os.environ.get("RVC_MODEL", "host_voice.pth")
 DEFAULT_INDEX = os.path.join(
-    RVC_ROOT, "logs", "seller", "added_IVF1026_Flat_nprobe_1_seller_v2.index"
+    RVC_ROOT,
+    "logs",
+    os.environ.get("RVC_INDEX_DIR", "host_voice"),
+    os.environ.get(
+        "RVC_INDEX_FILE",
+        "added_IVF447_Flat_nprobe_1_host_voice_v2.index",
+    ),
 )
 
 

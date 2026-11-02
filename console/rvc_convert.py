@@ -16,7 +16,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", required=True, help="输入音频（wav/mp3 都行，内部走 ffmpeg）")
     ap.add_argument("--output", required=True, help="输出 wav")
-    ap.add_argument("--model", default="seller.pth", help="assets/weights 下的模型文件名")
+    ap.add_argument(
+        "--model",
+        default=os.environ.get("RVC_MODEL", "host_voice.pth"),
+        help="assets/weights 下的模型文件名",
+    )
     ap.add_argument("--index", default="", help="特征索引 .index 的完整路径（可空）")
     ap.add_argument("--pitch", type=int, default=0, help="变调半音，男声配女声TTS常用 -12 ~ -6")
     ap.add_argument("--f0-method", default="rmvpe", dest="f0_method")

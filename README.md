@@ -18,7 +18,7 @@
 
 | 模块 | 状态 | 位置 |
 |---|---|---|
-| **变声模型**(卖家音色) | ✅ 训练完成并装好 | `D:\zhibo\runtime\RVC\...\assets\weights\seller.pth` |
+| **变声模型**(克隆音色) | ✅ 训练完成并装好 | `D:\zhibo\runtime\RVC\...\assets\weights\host_voice.pth`；旧卖家模型 `seller.pth` 保留 |
 | **变声运行环境** | ✅ 已装、GPU 可用 | `D:\zhibo\runtime\RVC\RVC20260718Nvidia\` |
 | **AI 中控台** | ✅ 已做好,待填 DeepSeek 密钥 | `console/` |
 | **OBS 合成推流** | ✅ 便携版已装 | `D:\zhibo\runtime\OBS\bin\64bit\obs64.exe` |
@@ -33,7 +33,7 @@
 1. **启动中控台**:双击 `启动中控台.bat` → 浏览器开 http://127.0.0.1:8777
    先在 `.env` 填 `DEEPSEEK_API_KEY`(机器里那个旧 key 已失效)。
 2. **启动变声**:双击 `D:\zhibo\runtime\RVC\RVC20260718Nvidia\go-realtime_gui.bat`,加载
-   `seller.pth` + `added_IVF1026_..._seller_v2.index`。
+   `host_voice.pth` + `added_IVF447_..._host_voice_v2.index`。如需切回旧模型，加载 `seller.pth`。
 3. **启动 OBS**:`D:\zhibo\runtime\OBS\bin\64bit\obs64.exe`,按 [`docs/05-OBS合成与推流.md`](docs/05-OBS合成与推流.md) 搭场景。
 
 ## 文档
